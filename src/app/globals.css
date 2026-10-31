@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@import "@fontsource-variable/golos-text";
+@import "@fontsource-variable/source-serif-4";
+@import "@fontsource-variable/jetbrains-mono";
+
+@theme {
+  --font-sans: "Golos Text Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  /* Тёплая светлая основа, графитовый текст, терракота как редкий акцент. */
+  --color-paper: #f4f2ec;
+  --color-card: #fbfaf7;
+  --color-sand: #e9e6dc;
+  --color-ink: #1c1b17;
+  --color-muted: #6b685f;
+  --color-line: #dedace;
+  --color-line-strong: #c3beb0;
+
+  --color-brand: #c2603d;
+  --color-brand-strong: #a54f30;
+  --color-brand-soft: #f2dfd5;
+
+  --color-ok: #4d6a3b;
+  --color-ok-strong: #3b5330;
+  --color-ok-soft: #e1e7d5;
+
+  --color-signal: #94600f;
+  --color-signal-soft: #f2e7cc;
+  --color-danger: #a3322b;
+  --color-danger-soft: #f4dbd6;
+
+  /* Тёмные полосы — как экран терминала. */
+  --color-night: #1c1b17;
+  --color-night-2: #262520;
+  --color-night-line: #3a3832;
+  --color-night-text: #ece9df;
+  --color-night-muted: #a19d91;
+
+  --color-tape: #f2c94c;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-rise: rise 0.5s var(--ease-out-soft) both;
+  --animate-fade: fade 0.3s ease-out both;
+  --animate-print: print 0.6s var(--ease-out-soft) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes print {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-brand-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Уважение к настройке «уменьшить движение»: анимации сводятся к мгновенной смене состояния. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s var(--ease-out-soft), transform 0.7s var(--ease-out-soft);
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Лента демо-панели: служебный элемент визуально отделён от продукта. */
+.tape {
+  background: repeating-linear-gradient(-45deg, var(--color-tape) 0 10px, var(--color-ink) 10px 20px);
+}
+
+dialog::backdrop {
+  background: rgb(28 27 23 / 0.4);
+}
+dialog[open] {
+  animation: var(--animate-fade);
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Пиксельные иллюстрации: сборка при появлении и мигающие огоньки. */
+.px-art rect {
+  opacity: 0;
+}
+.px-art[data-on="true"] rect {
+  animation: px-in 0.35s var(--ease-out-soft) both;
+  animation-delay: var(--d);
+}
+.px-art[data-on="true"] rect.px-blink {
+  animation:
+    px-in 0.35s var(--ease-out-soft) both var(--d),
+    px-blink 2.2s steps(1) infinite calc(var(--d) + 600ms + var(--b));
+}
+.px-art .px-packet {
+  animation: px-packet 2.6s linear infinite;
+}
+@keyframes px-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes px-blink {
+  0%, 60% { opacity: 1; }
+  60.01%, 100% { opacity: 0.25; }
+}
+@keyframes px-packet {
+  0% { transform: translateX(0); opacity: 0; }
+  8%, 92% { opacity: 1; }
+  100% { transform: translateX(var(--dist)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .px-art rect, .px-art[data-on="true"] rect, .px-art[data-on="true"] rect.px-blink {
+    opacity: 1;
+    animation: none !important;
+  }
+  .px-art .px-packet { display: none; }
+}
+
+/* Пока открыто модальное окно, страница под ним не прокручивается. */
+html:has(dialog[open]:modal) {
+  overflow: hidden;
+}
